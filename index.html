@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive CV - Muhammad Imran Sazali</title>
+    <!-- Chosen Palette: Warm Neutral (Stone, Slate, Blue Accent) -->
+    <!-- Application Structure Plan: A single-page dashboard. Top: Hero section with 3-4 dynamic "Career KPIs" ($11.39M, 879 Tools). Middle: An interactive, filterable grid of project cards. Users can filter projects by 'Data & Analytics', 'Core Automation', or 'Software'. This is the primary interaction, moving beyond a static list. Below: A "Data Spotlight" section with two interactive Chart.js visualizations (recreating the 879-tool bar chart and a dynamic mockup of the Cross-Board dashboard). Finish with structured grids for Skills & Career. This structure highlights his biggest wins first and allows non-linear exploration of his work via filtering, which is far more usable than a long, linear CV. -->
+    <!-- Visualization & Content Choices:
+        1.  Report Info: $11.39M Savings, 879 Tools, 49M Units. Goal: Inform/Impact. Viz: Large "KPI" cards (HTML/Tailwind). Interaction: None, static display. Justification: Highlights biggest wins immediately.
+        2.  Report Info: List of 10+ projects. Goal: Organize/Explore. Viz: Filterable grid of "project cards" (HTML/Tailwind/JS). Interaction: JS buttons (All, Data, Automation, Software) toggle card visibility. Justification: Allows users to explore projects by theme, which is a key task for a recruiter.
+        3.  Report Info: 879 RMS Tool Breakdown (Slide 9). Goal: Compare/Inform. Viz: Horizontal Bar Chart (Chart.js Canvas). Interaction: Tooltips on hover. Justification: Visually represents the *scope* of his largest implementation.
+        4.  Report Info: Cross-Board Dashboard (Slide 7 screenshot). Goal: Demonstrate BI Skill. Viz: Dynamic Line Chart + Doughnut Chart (Chart.js Canvas). Interaction: Dropdown selector (e.g., "Filter by Line") will update the chart data via JS. Justification: This *shows* his BI/dashboarding skill instead of just telling it.
+        5.  Report Info: Skills List. Goal: Organize. Viz: Categorized grid (HTML/Tailwind). Interaction: None. Justification: More scannable than a long list.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4;
+        }
+        .filter-btn {
+            transition: all 0.3s ease;
+        }
+        .filter-btn.active {
+            background-color: #004E9A;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .project-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            will-change: transform;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-sm shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-slate-800">Muhammad Imran Sazali</h1>
+                    <p class="text-sm font-medium text-blue-600">Automation & Business Analytics Professional</p>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#portfolio" class="font-medium text-slate-600 hover:text-blue-600">Projects</a>
+                    <a href="#spotlight" class="font-medium text-slate-600 hover:text-blue-600">Data Spotlight</a>
+                    <a href="#skills" class="font-medium text-slate-600 hover:text-blue-600">Skills</a>
+                    <a href="#career" class="font-medium text-slate-600 hover:text-blue-600">Career</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-8">
+        
+        <!-- Hero Summary & KPIs -->
+        <section class="mb-12">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-4">Professional Summary</h2>
+                    <p class="text-base leading-relaxed">
+                        An accomplished Senior Automation Engineer with over five years of dedicated experience in the high-volume semiconductor manufacturing sector. Specializing in the development and deployment of Host Automation and Manufacturing Execution System (MES) solutions, leading projects that significantly enhance operational efficiency, product quality, and cost mitigation. Recently completed a Master's in Business Analytics, providing a robust foundation in data-driven methodologies, predictive modeling, and strategic process optimization.
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-green-500">
+                        <p class="text-sm font-medium text-slate-500">Cost Savings</p>
+                        <p class="text-4xl font-extrabold text-green-600">$11.39M</p>
+                        <p class="text-xs text-slate-500">From automated shelf-life extension</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-blue-500">
+                        <p class="text-sm font-medium text-slate-500">Systems Enabled</p>
+                        <p class="text-4xl font-extrabold text-blue-600">879</p>
+                        <p class="text-xs text-slate-500">Total tools in Recipe Management System</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-yellow-500">
+                        <p class="text-sm font-medium text-slate-500">Units Salvaged</p>
+                        <p class="text-4xl font-extrabold text-yellow-600">49M+</p>
+                        <p class="text-xs text-slate-500">TI supplier material units</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Project Portfolio -->
+        <section id="portfolio" class="mb-12">
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Project Portfolio</h2>
+            <p class="text-lg text-slate-600 mb-6">
+                Here is a selection of key projects. Use the filters to explore how my work spans across different domains, from core manufacturing automation to data-driven software solutions.
+            </p>
+            
+            <!-- Filter Navigation -->
+            <div id="filter-nav" class="flex flex-wrap gap-2 mb-6">
+                <button class="filter-btn active text-sm font-medium py-2 px-4 rounded-full border border-slate-300 hover:bg-slate-100" data-filter="all">All Projects</button>
+                <button class="filter-btn text-sm font-medium py-2 px-4 rounded-full border border-slate-300 hover:bg-slate-100" data-filter="data">Data & Analytics</button>
+                <button class="filter-btn text-sm font-medium py-2 px-4 rounded-full border border-slate-300 hover:bg-slate-100" data-filter="automation">Core Automation (MES/RMS)</button>
+                <button class="filter-btn text-sm font-medium py-2 px-4 rounded-full border border-slate-300 hover:bg-slate-100" data-filter="software">Software & Scripting</button>
+            </div>
+
+            <!-- Project Grid -->
+            <div id="project-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- Project 1 -->
+                <div class="project-card bg-white rounded-lg shadow-sm overflow-hidden" data-category="software data automation">
+                    <div class="p-6">
+                        <span class="text-xs font-bold uppercase text-green-600">Impact: $11.39M</span>
+                        <h3 class="text-xl font-bold text-slate-800 mt-2 mb-2">Automated Shelf-Life Extension</h3>
+                        <p class="text-sm mb-4">Developed an autonomous Python application to manage 3-year extensions for TI supplier materials, mitigating critical supply shortages and salvaging 49M+ units across 3 global sites (MMP, MSB, MXA).</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs bg-green-100 text-green-800 py-1 px-2 rounded-full">Python</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">Cost Saving</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">Supply Chain</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="project-card bg-white rounded-lg shadow-sm overflow-hidden" data-category="data software">
+                    <div class="p-6">
+                        <span class="text-xs font-bold uppercase text-blue-600">BI & Analytics</span>
+                        <h3 class="text-xl font-bold text-slate-800 mt-2 mb-2">Cross-Board Monitoring Dashboard</h3>
+                        <p class="text-sm mb-4">Architected a comprehensive dashboard (Python, SQL, Power BI) to give manufacturing and IE teams real-time visibility into line utilization and efficiency, now used by all cross-functional teams.</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs bg-blue-100 text-blue-800 py-1 px-2 rounded-full">Power BI</span>
+                            <span class="text-xs bg-green-100 text-green-800 py-1 px-2 rounded-full">Python</span>
+                            <span class="text-xs bg-yellow-100 text-yellow-800 py-1 px-2 rounded-full">SQL</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">Dashboard</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="project-card bg-white rounded-lg shadow-sm overflow-hidden" data-category="automation software">
+                    <div class="p-6">
+                        <span class="text-xs font-bold uppercase text-slate-600">Host Integration</span>
+                        <h3 class="text-xl font-bold text-slate-800 mt-2 mb-2">Reject Management & Host Integration</h3>
+                        <p class="text-sm mb-4">Developed a Python GUI (XML Creator) to manage rejects for manual processes, integrating with host systems for auto reject sorting and eliminating physical stickers.</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs bg-green-100 text-green-800 py-1 px-2 rounded-full">Python</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">Host Automation</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">Error Proofing</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 4 -->
+                <div class="project-card bg-white rounded-lg shadow-sm overflow-hidden" data-category="automation">
+                    <div class="p-6">
+                        <span class="text-xs font-bold uppercase text-blue-600">Impact: 67% Time Reduction</span>
+                        <h3 class="text-xl font-bold text-slate-800 mt-2 mb-2">RMS Framework Improvement (SSD Test)</h3>
+                        <p class="text-sm mb-4">Re-architected the RMS Recipe Framework for SSD Test, reducing recipe staging time from 120s to 40s (a 67% improvement) and minimizing equipment downtime during changes.</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs bg-blue-100 text-blue-800 py-1 px-2 rounded-full">RMS</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">MES</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">Process Optimization</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 5 -->
+                <div class="project-card bg-white rounded-lg shadow-sm overflow-hidden" data-category="automation">
+                    <div class="p-6">
+                        <span class="text-xs font-bold uppercase text-slate-600">Quality & Error Proofing</span>
+                        <h3 class="text-xl font-bold text-slate-800 mt-2 mb-2">RMS Quality Assurance Stop-Gates</h3>
+                        <p class="text-sm mb-4">Enabled the "CompareRecipeBody" feature in Module Test as a mandatory stop-gate against unauthorized changes. Also implemented a Solder Paste Expiry Counter for SMT processes.</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs bg-blue-100 text-blue-800 py-1 px-2 rounded-full">RMS</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">Quality Control</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">Error Proofing</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 6 -->
+                <div class="project-card bg-white rounded-lg shadow-sm overflow-hidden" data-category="automation software">
+                    <div class="p-6">
+                        <span class="text-xs font-bold uppercase text-slate-600">Workflow Automation</span>
+                        <h3 class="text-xl font-bold text-slate-800 mt-2 mb-2">Automated ROB Notifications</h3>
+                        <p class="text-sm mb-4">Developed a system to trigger automatic email notifications for all new Recipe Object Bodies (ROBs) released to production, ensuring stakeholder awareness and full traceability.</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs bg-blue-100 text-blue-800 py-1 px-2 rounded-full">RMS</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">Workflow</span>
+                            <span class="text-xs bg-green-100 text-green-800 py-1 px-2 rounded-full">Python</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 7 -->
+                <div class="project-card bg-white rounded-lg shadow-sm overflow-hidden" data-category="data software">
+                    <div class="p-6">
+                        <span class="text-xs font-bold uppercase text-slate-600">Data Management</span>
+                        <h3 class="text-xl font-bold text-slate-800 mt-2 mb-2">MOL Vision Image Storage</h3>
+                        <p class="text-sm mb-4">Developed a sustainable method to compress large bitmap vision files to PNG and store them as blobs in SQL, enabling efficient storage and fast recollection for quality investigations.</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs bg-green-100 text-green-800 py-1 px-2 rounded-full">Python</span>
+                            <span class="text-xs bg-yellow-100 text-yellow-800 py-1 px-2 rounded-full">SQL</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">Data Storage</span>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Project 8 -->
+                <div class="project-card bg-white rounded-lg shadow-sm overflow-hidden" data-category="software">
+                    <div class="p-6">
+                        <span class="text-xs font-bold uppercase text-slate-600">Infrastructure Automation</span>
+                        <h3 class="text-xl font-bold text-slate-800 mt-2 mb-2">VM & Storage Management</h3>
+                        <p class="text-sm mb-4">Wrote PowerShell scripts, managed via Task Scheduler, to automatically manage folder sizes for MOL Vision programs and ensure critical VMs restart and run scripts correctly after Windows updates.</p>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs bg-blue-100 text-blue-800 py-1 px-2 rounded-full">PowerShell</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">Task Scheduler</span>
+                            <span class="text-xs bg-slate-100 text-slate-800 py-1 px-2 rounded-full">IT Automation</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        
+        <!-- Data & Impact Spotlight -->
+        <section id="spotlight" class="mb-12">
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Data & Impact Spotlight</h2>
+            <p class="text-lg text-slate-600 mb-8">
+                Visualizing the scope and impact of my work. This section contains interactive recreations of project data, demonstrating both the results and the analytical skills used to achieve them.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Chart 1: RMS Tool Enablement -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-bold text-slate-800 mb-1">RMS Tool Enablement: 879 Total Tools</h3>
+                    <p class="text-sm text-slate-600 mb-4">Breakdown of all host-automated tools configured and enabled in the Recipe Management System.</p>
+                    <div class="chart-container">
+                        <canvas id="rmsToolsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Interactive Dashboard Mockup -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="text-xl font-bold text-slate-800">Cross-Board Dashboard (Demo)</h3>
+                        <select id="line-filter" class="text-sm rounded border-slate-300 shadow-sm">
+                            <option value="all">All Lines</option>
+                            <option value="line101">LINE101</option>
+                            <option value="line105">LINE105</option>
+                            <option value="line109">LINE109</option>
+                        </select>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4">Interactive demo based on the Cross-Board Monitoring Dashboard, showing line efficiency over time.</p>
+                    <div class="chart-container">
+                        <canvas id="dashboardLineChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Core Competencies -->
+        <section id="skills" class="mb-12">
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Core Competencies</h2>
+            <p class="text-lg text-slate-600 mb-6">
+                A summary of the technical skills and systems I leverage to build, analyze, and optimize manufacturing processes.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-bold text-blue-600 mb-3">Programming & Software</h3>
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li>Python</li>
+                        <li>PowerShell (Scripting)</li>
+                        <li>SQL (MS SQL, Database Management)</li>
+                        <li>Task Scheduler</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-bold text-green-600 mb-3">Data & Analytics</h3>
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li>Power BI</li>
+                        <li>Tableau</li>
+                        <li>Manufacturing Analytics</li>
+                        <li>ETL (Extract, Transform, Load)</li>
+                        <li>Snowflake</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-bold text-slate-600 mb-3">Automation Systems</h3>
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li>Host Automation</li>
+                        <li>MES (Manufacturing Execution System)</li>
+                        <li>RMS (Recipe Management)</li>
+                        <li>UIPath (RPA)</li>
+                        <li>SMT, SSD & Module Test</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Career & Education -->
+        <section id="career" class="mb-12">
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Career & Education</h2>
+            <p class="text-lg text-slate-600 mb-6">
+                My professional and academic journey, combining a foundation in Chemical Engineering with advanced specialization in Business Analytics.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Professional Experience -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Professional Experience</h3>
+                    <div class="relative pl-6 after:absolute after:inset-y-0 after:left-0 after:w-0.5 after:bg-slate-200">
+                        <div class="mb-6 relative">
+                            <div class="absolute -left-7 -translate-x-0.5 w-3 h-3 bg-blue-600 rounded-full ring-4 ring-white"></div>
+                            <p class="text-sm font-medium text-slate-500">Nov 2025 – Present</p>
+                            <h4 class="text-lg font-bold text-slate-800">Senior Automation Engineer</h4>
+                            <p class="text-sm font-medium text-slate-600">Micron Technology, Penang</p>
+                        </div>
+                        <div class="mb-6 relative">
+                            <div class="absolute -left-7 -translate-x-0.5 w-3 h-3 bg-blue-600 rounded-full ring-4 ring-white"></div>
+                            <p class="text-sm font-medium text-slate-500">Sept 2020 – Nov 2025</p>
+                            <h4 class="text-lg font-bold text-slate-800">Automation Engineer</h4>
+                            <p class="text-sm font-medium text-slate-600">Micron Technology, Penang</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Education -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Education</h3>
+                    <div class="relative pl-6 after:absolute after:inset-y-0 after:left-0 after:w-0.5 after:bg-slate-200">
+                        <div class="mb-6 relative">
+                            <div class="absolute -left-7 -translate-x-0.5 w-3 h-3 bg-blue-600 rounded-full ring-4 ring-white"></div>
+                            <p class="text-sm font-medium text-slate-500">2024 – 2025</p>
+                            <h4 class="text-lg font-bold text-slate-800">Master of Business Analytics</h4>
+                            <p class="text-sm font-medium text-slate-600">University of Science Malaysia (USM)</p>
+                        </div>
+                        <div class="mb-6 relative">
+                            <div class="absolute -left-7 -translate-x-0.5 w-3 h-3 bg-blue-600 rounded-full ring-4 ring-white"></div>
+                            <p class="text-sm font-medium text-slate-500">2016 – 2020</p>
+                            <h4 class="text-lg font-bold text-slate-800">Bachelor of Engineering (Hons) Chemical</h4>
+                            <p class="text-sm font-medium text-slate-600">University of Science Malaysia (USM)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- *** NEW SECTION: Recognition *** -->
+        <section id="recognition" class="mb-12">
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Recognition & Peer Feedback</h2>
+            <p class="text-lg text-slate-600 mb-6">
+                A selection of "Bravo" awards and feedback from colleagues and cross-functional partners at Micron.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Recognition 1 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col">
+                    <h3 class="text-xl font-bold text-blue-600 mb-3">Tenacity & Dedication</h3>
+                    <p class="italic text-slate-600 flex-grow">"...tenacity and great collaboration... Your hard work and dedication working through the night to get it running is never easy. Furthermore, you exhibit Micron teamwork spirit..."</p>
+                    <p class="text-right font-medium text-slate-800 mt-4">- Edmund Seah</p>
+                </div>
+                
+                <!-- Recognition 2 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col">
+                    <h3 class="text-xl font-bold text-green-600 mb-3">Innovation & Problem Solving</h3>
+                    <p class="italic text-slate-600 flex-grow">"...thanks for providing an innovative / workable solution for the TI materials shelflife extension. Its is a flawless network execution and further improvements..."</p>
+                    <p class="text-right font-medium text-slate-800 mt-4">- Madhan Selvaraj</p>
+
+                </div>
+
+                <!-- Recognition 3 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col">
+                    <h3 class="text-xl font-bold text-yellow-600 mb-3">Collaboration & Leadership</h3>
+                    <p class="italic text-slate-600 flex-grow">"...Thanks for the great support in close follow up in leading the team in the Ateco task force support and great follow up to fulfill the quarter end Q1'21"</p>
+                    <p class="text-right font-medium text-slate-800 mt-4">- Alan Leong</p>
+                </div>
+
+                <!-- Recognition 4 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col">
+                    <h3 class="text-xl font-bold text-slate-600 mb-3">Cross-Functional Support</h3>
+                    <p class="italic text-slate-600 flex-grow">"Thank you for the great support rendered to the MMP MODSSD Test Engineering team. Keep up the good work and it has been great working with you."</p>
+                    <p class="text-right font-medium text-slate-800 mt-4">- Fook Woh Yeap</p>
+                </div>
+            </div>
+        </section>        
+
+    </main>
+
+    <footer class="text-center p-8 border-t border-slate-200 mt-12">
+        <p class="text-sm text-slate-500">Muhammad Imran Sazali | imransazali97@gmail.com | (+60) 13-6764212</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 1. Project Filter Logic ---
+            const filterContainer = document.getElementById('filter-nav');
+            const filterButtons = filterContainer.querySelectorAll('.filter-btn');
+            const projectCards = document.querySelectorAll('.project-card');
+
+            filterContainer.addEventListener('click', (e) => {
+                const target = e.target.closest('.filter-btn');
+                if (!target) return;
+
+                const filter = target.dataset.filter;
+
+                filterButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                target.classList.add('active');
+
+                projectCards.forEach(card => {
+                    const categories = card.dataset.category;
+                    if (filter === 'all' || categories.includes(filter)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+
+            // --- 2. Chart: RMS Tool Enablement ---
+            const rmsCtx = document.getElementById('rmsToolsChart').getContext('2d');
+            new Chart(rmsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['SSD Test (IBIR)', 'SSD Test (Advantest)', 'Module Test (ATECO)', 'Module-SSD SMT', 'Other (CTO, SAOI)'],
+                    datasets: [{
+                        label: 'Number of Tools Enabled',
+                        data: [432, 365, 44, 34, 4],
+                        backgroundColor: [
+                            '#004E9A',
+                            '#007BFF',
+                            '#5eead4',
+                            '#0d9488',
+                            '#facc15'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- 3. Chart: Interactive Dashboard Demo ---
+            const dashboardCtx = document.getElementById('dashboardLineChart').getContext('2d');
+            const lineDataStore = {
+                all: [97.2, 96.8, 97.5, 96.9, 98.1, 98.2, 97.8],
+                line101: [96.5, 96.2, 97.0, 96.5, 97.5, 97.1, 96.9],
+                line105: [98.1, 97.9, 98.0, 97.5, 98.5, 98.8, 98.5],
+                line109: [95.5, 96.0, 95.8, 96.2, 97.0, 96.8, 97.1]
+            };
+
+            let dashboardLineChart = new Chart(dashboardCtx, {
+                type: 'line',
+                data: {
+                    labels: ['WW25', 'WW26', 'WW27', 'WW28', 'WW29', 'WW30', 'WW31'],
+                    datasets: [{
+                        label: 'Line Efficiency %',
+                        data: lineDataStore.all,
+                        borderColor: '#004E9A',
+                        backgroundColor: 'rgba(0, 78, 154, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 95
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('line-filter').addEventListener('change', (e) => {
+                const selectedLine = e.target.value;
+                dashboardLineChart.data.datasets[0].data = lineDataStore[selectedLine];
+                dashboardLineChart.update();
+            });
+
+        });
+    </script>
+</body>
+</html>
